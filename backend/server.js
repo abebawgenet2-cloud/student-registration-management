@@ -10,16 +10,22 @@ app.use(express.json());
 let students = [];
 let nextId = 1;
 
-// Get all students
+// GET: Get all students
 app.get("/api/students", (req, res) => {
   res.json(students);
 });
 
-// Register a student
+// POST: Register a new student
 app.post("/api/students", (req, res) => {
-  const { name, email, department, year, phone } = req.body;
+  const {
+    name,
+    email,
+    studentId,
+    department,
+    year
+  } = req.body;
 
-  if (!name || !email || !department || !year || !phone) {
+  if (!name || !email || !studentId || !department || !year) {
     return res.status(400).json({
       message: "All fields are required"
     });
@@ -29,19 +35,25 @@ app.post("/api/students", (req, res) => {
     id: nextId++,
     name,
     email,
+    studentId,
     department,
-    year,
-    phone
+    year
   };
 
   students.push(student);
+
+  console.log("New student registered:", student);
+
   res.status(201).json(student);
 });
 
-// Update student
+// PUT: Update a student
 app.put("/api/students/:id", (req, res) => {
   const id = Number(req.params.id);
-  const index = students.findIndex(s => s.id === id);
+
+  const index = students.findIndex(
+    student => student.id === id
+  );
 
   if (index === -1) {
     return res.status(404).json({
@@ -58,12 +70,15 @@ app.put("/api/students/:id", (req, res) => {
   res.json(students[index]);
 });
 
-// Delete student
+// DELETE: Delete a student
 app.delete("/api/students/:id", (req, res) => {
   const id = Number(req.params.id);
+
   const oldLength = students.length;
 
-  students = students.filter(s => s.id !== id);
+  students = students.filter(
+    student => student.id !== id
+  );
 
   if (students.length === oldLength) {
     return res.status(404).json({
@@ -71,9 +86,12 @@ app.delete("/api/students/:id", (req, res) => {
     });
   }
 
-  res.json({ message: "Student deleted successfully" });
+  res.json({
+    message: "Student deleted successfully"
+  });
 });
 
+// Start server
 const PORT = 5000;
 
 app.listen(PORT, () => {
